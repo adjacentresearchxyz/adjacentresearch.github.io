@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Adjacent Research" />
+  
+    <title>Adjacent Research</title>
+  
+    <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+    <article class="markdown-body">
+        <h1 id="ramblings-on-defi-derivatives">Ramblings on DeFi Derivatives</h1>
+        <h2 id="background">background</h2>
+        <p>in the last year options protocols have grown from around $85m to over $1b in tvl, similarly perpetual swap trading platforms have seen quite the growth in trading volume from far less than $1b to coming close to clearing $10b in volume in a single day. value locked and volumes traded will only increase in 2022 with new platforms and products being released practically weekly (as im writing this <a href="https://opyn.co/">squeeth</a>, <a href="https://zeta.markets/">zeta</a>, <a href="https://invariant.app/">invariant</a>, and <a href="https://01.xyz/">01protocol</a> all released or are releasing in next few days).</p>
+        <p>there have been several good writeups on defi derivatives and their outlook for 2022 here is a particularly good one from <a href="https://jumpcrypto.com/state-of-crypto-derivatives-market/">jump trading</a>.</p>
+        <p>in the post shanav highlights that if you take crypto options volume (this includes centralized exchanges as well) as a % of spot volume, options only make up 2% of total volume traded. compare this to equity markets where options volume trades at a 35x multiple to spot volume. crypto derivative markets have a massive growth opportunity in front of them and the growth is particularly in defi.</p>
+        <p>in the rest of the post I will detail types of derivatives and their implementation and design in DeFi. along with innovations and what I am looking at next.</p>
+        <h2 id="types">types</h2>
+        <h3 id="perpetuals">perpetuals</h3>
+        <p>a product initially developed by <a href="https://www.bitmex.com/app/perpetualContractsGuide">bitmex</a> perp swaps have no expiry, and function similar to a spot margin account allowing for highly leveraged long/short trading.</p>
+        <p>since perps have no expiry the concept of a funding rate is introduced to tether the price of the perp to the current spot price.</p>
+        <ul>
+        <li>mark price refers to the current price of the perp</li>
+        <li>index price refers to the current spot price to tether to</li>
+        <li>negative funding rate shorts pay longs</li>
+        <li>positive funding rate longs pay shorts</li>
+        <li>funding rate is calculated by <code>funding_period * (mark - index) / index</code></li>
+        </ul>
+        <p><a href="https://research.paradigm.xyz/cartoon-guide-to-perps">paradigms cartoon guide to perps</a> also gives a very good explanation</p>
+        <p>perps quickly have become the most liquid and favorite way to trade on centralized exchanges and are a hot topic to be built out in DeFi.</p>
+        <p>so far there have been about three different perp designs</p>
+        <ul>
+        <li>orderbook + margin account</li>
+        <li>vAMM</li>
+        <li>embedded funding rates</li>
+        </ul>
+        <p>using an orderbook and margin account mirrors a centralized exchange experience and this is what protocols like <a href="https://docs.mango.markets/faqs/perp-faq">mango</a>work. trading on an orderbook is nice you can easily set limit orders, you trade <a href="https://twitter.com/mangomarkets/status/1484200839837274113?s=20">directly with other counterparties</a>, and for the protocol trading is very capital efficient (each trade is settled once it can be matched with a counterparty).</p>
+        <p>a vAMM based model can be extremely advantageous, for a trader there is always guaranteed liquidity since you are trading peer to pool, vAMMs can very easily be cross-margined with just about any asset since all of the trading is virtual.</p>
+        <p>the third design (which I have only seen <a href="https://opyn.co/">opyn</a> and squeeth use) is embedding the funding rate into a parameter of asset. known as <strong>in-kind</strong> funding squeeth uses a <a href="https://opyn.gitbook.io/squeeth/squeeth/contracts-documentation#normalization-factor">normalization factor</a> to settle funding between longs and shorts without ever having to manage a cash payment. using in-kind funding is something that I think will become much more common management of funding was the largest limitation for perp composability. since funding is handled in-kind squeeth can be easily traded as an ERC20, used to LP, used as collateral on other defi platforms, and the list goes on.</p>
+        <h3 id="a-quick-aside-on-vamm-design">a quick aside on vAMM design</h3>
+        <p>this does not entirely relate to perps (its about interest rate swaps actually), but <a href="https://www.voltz.xyz/">Voltz</a> has increased the benefits of using a vAMM through a concept known as <strong><a href="https://www.voltz.xyz/litepaper">LP Collateral Recycling</a>.</strong></p>
+        <p>in voltz example there are three users</p>
+        <ul>
+        <li>fixed interest rate taker</li>
+        <li>variable interest rate taker</li>
+        <li>liquidity provider</li>
+        </ul>
+        <p>if a fixed taker takes a trade that uses the LPs liquidity the LP is locked into the given swap at the rate the fixed taker took. but if a variable taker comes along and uses that same liquidity (the same rate) the positions can be netted out and the LP’s collateral can be freed and reused. in turn making the protocol much more capital efficient (there is more free liquidity to trade through).</p>
+        <p>even cooler this concept can be applied to most vAMMs. imagining recycling within a perp vAMM is even easier, if traders have opposite positions on the same asset you could settle their trades “off the curve”. additionally this might be an interesting way to integrate limit orders. a trader sets their limit price and if there is another trader that has an open position on the other side it settles. if not the limit is open until it can be filled by the vAMM.</p>
+        <p>in a way this makes a vAMM function like a pseudo orderbook with pricing based off of a curve.</p>
+        <blockquote>
+        <p>these are all very raw thoughts, iterate, be wrong, and discuss</p>
+        </blockquote>
+        <h3 id="options">options</h3>
+        <p>as referenced in the background of this options are only 2% of spot volume in crypto (note the majority of this 2% is centralized exchange volume <strong>not</strong> DeFi options), where in equity markets options volume trades at a 35x multiple to spot.</p>
+        <blockquote>
+        <p>this might not be the best comparison as crypto options trade much more like commodities than equities, but either way eye opening</p>
+        </blockquote>
+        <p>either DeFi and overall crypto options haven’t fully been figured out yet or no one wants to trade them.</p>
+        <p>I’ll take the former all day, right now it seems like DeFi options haven’t entirely taken off due to fragmentation (more on this in the liquidity section), the design, and getting large funds and market makers to trade on various chains.</p>
+        <p>the leading option protocol is <a href="https://opyn.co/">opyn</a> along with pool based protocols like <a href="https://hegic.co/">hegic</a>, <a href="https://pods.finance/">pods</a>, <a href="https://lyra.finance/">lyra</a>, and <a href="https://premia.finance/">premia</a>. there was almost zero use of these protocols until option vaults landed early this year (there is an entire section dedicated to this below).</p>
+        <p>we have seen over a 10x increase in usage of onchain option protocols. I expect this growth to continue, especially as products become more cleanly packaged, capital efficient, and composable.</p>
+        <h3 id="volatility">volatility</h3>
+        <p>there have also been a decent amount of products in the market that package risk or volatility in a simple index. <a href="https://volmex.finance/">volmex</a>has seen the most traction as a way to trade an assets volatility index. trading on volmex is similar to trading on a prediction market like <a href="https://polymarket.com/">polymarket</a> or <a href="https://www.augur.net/">augur</a>, you supply collateral and receive two tokens the IV index and its inverse. from here you can trade the volatility directionally how you choose.</p>
+        <p>I can see assets that volmex offers to be interesting and attractive to traders, however I think they struggle from a nascent market.</p>
+        <p>in their <a href="https://docs.volmex.finance/indices/methodology">methodology</a> section of the docs, its described that the volatility index is taken from averages across call and put options sourced offchain from <a href="https://deribit.com/">deribit</a>. while this solution works its not very decentralized or native to DeFi.</p>
+        <p>although this is not the fault of volmex. if there was a highly liquid onchain options market when they where designing their protocol they could have used that as a source rather than deribit.</p>
+        <blockquote>
+        <p>power perpetuals can be used as a volatility oracle, also check out oracle-free derivatives from primitive and antimatter</p>
+        </blockquote>
+        <p>as derivatives markets are built out further, I will be watching for volatility products.</p>
+        <h2 id="innovations">innovations</h2>
+        <h3 id="liquidity-and-composability">liquidity and composability</h3>
+        <p>liquidity is by far the most important part to design for when creating a derivatives project, there are just so many ways it can be fragmented.</p>
+        <ul>
+        <li>over chains</li>
+        <li>over protocols</li>
+        <li>over strikes</li>
+        <li>over expires</li>
+        </ul>
+        <blockquote>
+        <p>A good thread detailing fragmentation in the options market</p>
+        </blockquote>
+        <p>when option markets initially started to be designed on ethereum, the orderbook model was out of the question (still is on ethereum, but products like <a href="https://zeta.markets/">zeta</a> on solana use it), and since AMMs worked so well for spot tokens many protocols began to develop an AMM or pool based model for trading options. Below are a few of the designs</p>
+        <ul>
+        <li><a href="https://github.com/hegic/whitepaper/blob/master/Hegic%20Protocol%20Whitepaper.pdf">Hegic V1</a><ul>
+        <li>hegic works by having option writers function as liquidity providers to a pool in which they are locked for the options expiration</li>
+        <li>hegic was the first to do this, and they have seen considerable first mover advantage</li>
+        </ul>
+        </li>
+        <li><a href="https://github.com/hegic/Hegic-v8888-release-deck/blob/main/Hegic%20V8888%20Release%20Deck.pdf">Hegic v888</a><ul>
+        <li>the v2 of hegic, which introduced auto-exercising options, pools for both calls and puts, zero-loss pools (when you provide liquidity you can optionally hedge your liquidity)</li>
+        </ul>
+        </li>
+        <li><a href="https://www.pods.finance/pods_v1_whitepaper.pdf">Pods</a><ul>
+        <li>pods released a great pool based options model in which the black scholes pricing model built into the AMM in which all that needs to be inputted is the IV</li>
+        <li>right now each pool is a separate option series, but the pods team is looking at how multiple option series could be in a single pool (see section 7 future work)</li>
+        </ul>
+        </li>
+        <li><a href="https://premia.finance/amm.pdf">Premia</a><ul>
+        <li>premia has taken a lot of the options pool concepts to the next level, buyers can select your expiration date and strike price at a granular level and sellers (liquidity providers) can choose which markets they want to underwrite.</li>
+        </ul>
+        </li>
+        <li><a href="https://www.lyra.finance/files/whitepaper.pdf">Lyra</a><ul>
+        <li>lrya functions with two pools, the collateral (writes the options) and the delta pool (hedges option writers delta). lyra also uses market driven IV which is then inputted to the black-scholes model to determine the option price</li>
+        </ul>
+        </li>
+        </ul>
+        <p>all of the research that has gone into designing these protocols is very impressive but due to poor capital efficiency and often much higher prices compared to say deribit most of these protocols have not seen significant volume compared to centralized counterparts.</p>
+        <p>looking at <a href="https://dune.xyz/momir/Pods-Finance">pods</a> and <a href="https://dune.xyz/krugman/Premia-v2">premia’s</a> total volume they have cleared less all time than squeeth has in 2 weeks. nothing against either team (I actually really enjoy reading their docs) but squeeth has cleared more in volume in a fraction of the time because squeeth has done away with 3/4 of the liquidity fragmentations. there is no expiry, no need to select a strike price, and due to built in funding rate (thanks to the normalization factor) squeeth can be cross protocol (see a list of integrations <a href="https://github.com/0xperp/awesome-squeeth#integrations">here</a>).</p>
+        <p>more on squeeth and power perpetuals later, but its important to know that cleanly packaging a payoff, in a perpetual, and composable fashion will always win out.</p>
+        <p>in addition to composable perpetuals like squeeth and option based AMM formulas there has been significant research in using <a href="https://starli.medium.com/uniswap-deep-dive-into-v3-technical-white-paper-2fe2b5c90d2">concentrated</a> <a href="https://uniswap.org/whitepaper-v3.pdf">liquidity</a> to form option payoffs.</p>
+        <p>if you are interested in this I suggest you read all ten articles from <a href="https://twitter.com/guil_lambert">@guil_lambert</a> starting with <a href="https://lambert-guillaume.medium.com/uniswap-v3-lp-tokens-as-perpetual-put-and-call-options-5b66219db827">Uniswap V3 LP Tokens as Perpetual Put and Call Options</a>, followed by <a href="https://lambert-guillaume.medium.com/synthetic-options-and-short-calls-in-uniswap-v3-a3aea5e4e273">2</a>, <a href="https://lambert-guillaume.medium.com/a-guide-for-choosing-optimal-uniswap-v3-lp-positions-part-1-842b470d2261">3</a>, <a href="https://lambert-guillaume.medium.com/a-guide-for-choosing-optimal-uniswap-v3-lp-positions-part-2-4a94b0a12886">4</a>, <a href="https://lambert-guillaume.medium.com/how-to-create-a-perpetual-options-in-uniswap-v3-3c40007ccf1">5</a>, <a href="https://lambert-guillaume.medium.com/understanding-the-value-of-uniswap-v3-liquidity-positions-cdaaee127fe7">6</a>, <a href="https://lambert-guillaume.medium.com/pricing-uniswap-v3-lp-positions-towards-a-new-options-paradigm-dce3e3b50125">7</a>, <a href="https://lambert-guillaume.medium.com/on-chain-volatility-and-uniswap-v3-d031b98143d1">8</a>, <a href="https://lambert-guillaume.medium.com/an-analysis-of-the-expected-value-of-the-impermanent-loss-in-uniswap-bfbfebbefed2">9</a>, <a href="https://lambert-guillaume.medium.com/how-to-deploy-delta-neutral-liquidity-in-uniswap-or-why-euler-finance-is-a-game-changer-for-lps-1d91efe1e8ac">10</a>. following that go and play around with <a href="https://info.yewbow.org/#/">info.yewbow.org</a> observe the volatility of each pool and visualize the payoff of your LPs</p>
+        <p>the top tier team at <a href="https://primitive.finance/">primitive</a> took this a step further and developed an entirely new protocol <a href="https://primitive.finance/blog/introducing-primitive">RMM-01</a> which focuses on being a spot and derivative exchange through concentrated liquidity. if you are curious on how you can create a replicating portfolio from a constant product market I suggest you read the following</p>
+        <ul>
+        <li><a href="https://stanford.edu/~guillean/papers/rmms.pdf">Replicating Market Makers</a></li>
+        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3550601">The Replicating Portfolio of a Constant Product Market</a></li>
+        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3898384">The Replicating Portfolio of a Constant Product Market with Bounded Liquidity</a></li>
+        <li><a href="https://arxiv.org/abs/2111.13740">Replicating Monotonic Payoffs Without Oracles</a></li>
+        </ul>
+        <p>having a spot and derivative exchange bundled in one unlocks tons of capital efficiency, allows for granular strike selection, automatically rolling expires when the AMM rebalances (<a href="https://twitter.com/alexangelj/status/1484596002510163972?s=20">heads up for searchers</a>), and freedom to select your own quote and base asset.</p>
+        <p>but… there are always tradeoffs replicating an option with concentrated liquidity only allows you to replicate selling options and the premium <a href="https://docs.primitive.finance/faq/liquidity#where-does-yield-come-from">yield relies on swap fees</a> from those using the spot exchange or arbitrageurs. yield being derived only from swap fees has two consequences, (1) <a href="https://docs.primitive.finance/faq/liquidity#no-arbitrageswaps-occur">no swaps or arbs occur</a> in which you would not earn yield and (2) since yield is from swaps your premium is paid over time of the expiry and not given upfront.</p>
+        <p>there are a few solutions to these: if you want to have a long call payoff you could <a href="https://docs.themis.exchange/product-information/borrowing">borrow</a> a primitive position, if you want to have a somewhat guaranteed premium you could <a href="https://docs.themis.exchange/product-information/lending-pool">lend</a> a primitive position</p>
+        <p><img src="https://images.mirror-media.xyz/publication-images/mJC--pHBXiNDBbrdKo6c0.png?height=458&amp;width=869" alt="https://images.mirror-media.xyz/publication-images/mJC--pHBXiNDBbrdKo6c0.png?height=458&amp;width=869"></p>
+        <h3 id="the-vault-structure">the vault structure</h3>
+        <p>a somewhat common and basic options strategy to generate additional yield on an asset by forgoing potential upside is known as a covered call strategy. there are <a href="https://www.investopedia.com/terms/c/coveredcall.asp">plenty</a> of <a href="https://www.fidelity.com/learning-center/investment-products/options/anatomy-of-a-covered-call">good</a> <a href="https://www.lynalden.com/covered-calls/">guides</a> on how this works and the risk associated. the basics are you sell a far out of the money option on a regular cadence taking home the premium as yield and praying (or hopefully hedging) that prices do not rise enough for your calls to be excised.</p>
+        <p>yield farming to earn 4 digit APYs is extremely lucrative, but not very sustainable by selling risk through options you will have a much lower but sustainable yield. these concepts are summed up nicely in <a href="https://juliankoh.medium.com/where-does-yield-come-from-anyway-fc818c114bd5">where does yield come from</a> by <a href="https://ribbon.finance/">ribbon</a>co-founder <a href="https://twitter.com/juliankoh">@juliankoh</a>.</p>
+        <p>the ribbon team (and now a <a href="https://defillama.com/protocols/options">growing list of others</a>) saw strategies like covered calls and yield vaults like <a href="https://yearn.finance/">yearn</a> as a perfect fit, and thus Option Vaults were formed.</p>
+        <p>option vaults are simple, user deposits ETH and each week the ETH is used to collateralize 1w expiry and 0.1d options via oTokens using <a href="https://opyn.finance/">opyns</a> <a href="https://github.com/opynfinance/GammaProtocol">gamma protocol</a> which are then sold to market makers via telegram and <a href="https://trader.airswap.io/">airswap</a> or through <a href="https://ribbonfinance.medium.com/open-auctions-a981ff10db2b">open access gnosis auctions</a>.</p>
+        <p>these vaults are somewhat of a win-win for all parties. retail has a clean UX, simple, and easy way to generate constant yield. sophisticated market makers can take advantage of the not very competitive option pricing and arb the prices across other option exchanges.</p>
+        <p>there has been a decent backlash to option vaults on twitter see</p>
+        <p>or the quote tweets from <a href="https://twitter.com/roshunpatel/status/1477835282686824452/retweets/with_comments">here</a>.</p>
+        <p>all I’ll say on this is option vaults are much more transparent in their onchain activities and structure its just really about communicating that risk to the retail investors using the platform. if you are marketing the option premiums as risk free yield then ya backlash is deserved.</p>
+        <p>across all option vault protocols there is about $500m of short dated options being sold each week by DOVs, so much that they are starting to affect the skew</p>
+        <p><img src="https://images.mirror-media.xyz/publication-images/BhoC1EoXZJX0KSuN-Er85.png?height=593&amp;width=816" alt="https://images.mirror-media.xyz/publication-images/BhoC1EoXZJX0KSuN-Er85.png?height=593&amp;width=816"></p>
+        <p>some smart traders new this was coming, but I assume most did not</p>
+        <p><img src="https://images.mirror-media.xyz/publication-images/-yP145l7Hc2rFfeRl9aOB.png?height=166&amp;width=1274" alt="https://images.mirror-media.xyz/publication-images/-yP145l7Hc2rFfeRl9aOB.png?height=166&amp;width=1274"></p>
+        <p>the deribit insights thread aeto was looking for can now be found <a href="https://twitter.com/DeribitInsights/status/1482805604590759937?s=20">here</a></p>
+        <p>if you take away anything from this post, know that your yield will <strong>always</strong> be compressed even if it is “sustainable”</p>
+        <p>so far we have seen 40% interest rate on stablecoins, 4-5 figure APYs on the newest yield farm, very high double digit yields on option vaults, and (likely) will see large swings in negative funding via algorithmic stablecoin mints. and this is were things start getting cool… DeFi products affecting the overall crypto market structure (who would have thought back in 2019 when the entire space was sub $1m TVL).</p>
+        <p>but high tvl vault projects decimating your yield isn’t the point of this post… so back to derivatives.</p>
+        <p>another vault structure that is becoming more common is the basis trading vault. <a href="https://uxd.fi/">uxd</a> and <a href="https://lemma.finance/">lemma</a> are leading the way. the basis trade is pretty simple especially when you are using perps.</p>
+        <ul>
+        <li>notice that funding on your favorite perp protocol is positive (longs pay shorts)</li>
+        <li>spot long an asset</li>
+        <li>short the asset on the perp protocol</li>
+        <li>earn the funding rate while being delta neutral</li>
+        </ul>
+        <p><em>of course you’ll need to continually hedge your positions to keep your delta neutral</em></p>
+        <p>uxd and lemma run strategies on decentralized perp markets (<a href="https://mango.markets/">mango</a> and <a href="https://www.perp.com/">perpetual</a>) in a vault structure allowing anyone to invest. additionally they mint a stablecoin against the position. in uxd example you deposit SOL and the vault shorts SOL perps on mango.</p>
+        <blockquote>
+        <p>algorithmic stablecoins are another interesting DeFi concept, maybe will detail in a later post but for now this piece from dragonfly and and FRAX’s docs on seniorage shares should get you started</p>
+        </blockquote>
+        <p>as mentioned above a large influx in delta neutral backed stablecoins could push perp markets funding rates negative.</p>
+        <p>understanding how these stables pay the negative funding is important (and directly affects your coins stability), generally this is paid through an <a href="https://docs.lemma.finance/concepts-overview/dao#treasury-and-insurance-fund">insurance</a> <a href="https://docs.uxd.fi/uxdprotocol/overview/insurance-fund">fund</a> and if thats not enough governance tokens may be auctioned off (similar to <a href="https://docs.makerdao.com/smart-contract-modules/system-stabilizer-module/flop-detailed-documentation#5.-failure-modes-bounds-on-operating-conditions-and-external-risk-factors">maker debt auctions</a>).</p>
+        <p>however historically the basis trade has been really profitable</p>
+        <blockquote>
+        <p>Following a 2x long ETH-USDC on Perp and 2x short ETH-PERP in FTX would have yielded over 100% APR since the market was opened</p>
+        </blockquote>
+        <p><em>hidden in this article you will also find some interesting finds relating to the open interest and price on perpetual protocol v1</em></p>
+        <h3 id="a-quick-aside-on-stablecoins-and-perps-and-what-they-can-learn-from-one-another">a quick aside on stablecoins and perps and what they can learn from one another</h3>
+        <p>if your timeline over the past few weeks has been 75% about squeeth like mine, then tweets around “everything being a perp” might have surfaced. here are a few of them</p>
+        <ul>
+        <li><a href="https://twitter.com/gakonst/status/1428863329771180032?s=20">from georgios</a></li>
+        <li><a href="https://twitter.com/danrobinson/status/1428864195601252355?s=20">from dan</a></li>
+        <li><a href="https://twitter.com/_charlienoyes/status/1428904668336300032?s=20">reference to rai, from charlie</a></li>
+        </ul>
+        <p><em>note: all <a href="https://paradigm.xyz/">paradigm</a></em></p>
+        <p>quick overview for MakerDAO and DAI is that DAI is an ETH margined USD perp</p>
+        <ul>
+        <li>DAI holders are long DAI</li>
+        <li>Vault depositors are short DAI</li>
+        <li>DAI price is the mark</li>
+        <li>$1 is the index</li>
+        <li>the <a href="https://makerdao.world/en/learn/Dai/dsr/">dai savings rate</a> and <a href="https://makerdao.world/en/learn/vaults/stability-fees/">stability fee</a> act like a funding rate</li>
+        </ul>
+        <p>on the RAI and reflexer side the team has called <a href="https://twitter.com/reflexerfinance/status/1438326996405297155?s=20">themselves a stablecoin/perp</a>, if you read closely on the rai <a href="https://docs.reflexer.finance/rai/rai-use-cases#stacked-funding-rates">use cases</a> you can see how RAIs redemption rate is similar to a funding rate.</p>
+        <blockquote>
+        <p>another side note A Money God Rises, DAI purple paper, Rico are all good reads</p>
+        </blockquote>
+        <p>you can read more about perps as stablecoins from a more technical side, written by opyn, <a href="https://colab.research.google.com/drive/1mrxubKiFUhlavol4a38NJYaANdSNAEun">here</a></p>
+        <p>and a final exercise to the reader from the above post</p>
+        <blockquote>
+        <p>This is a collateralized zero coupon bond -- the original stablecoin</p>
+        </blockquote>
+        <p>okay after that quick overview on how everything is a perp, what can perps learn from algorithmic stablecoins (this specifically applies to those built with an AMM for pricing)?</p>
+        <p>designing a perp market has the benefit of using an AMM for pricing, most vAMM designs use the constant product formula <code>xy=k</code> which has worked quite well.</p>
+        <p>there have been plenty of iterations and new designs for AMMs for <a href="https://curve.fi/files/stableswap-paper.pdf">similarly priced</a> <a href="https://curve.fi/files/crypto-pools-paper.pdf">assets</a> and if you think of the mark and index of a perp as two separate like priced assets you can start to see how implementing a stableswap-like curve might allow for a perp to maintain a tighter peg.</p>
+        <p>additionally almost all algorithmic stablecoins trade at a current value (the mark) and peg/target a rate of $1 (the index).</p>
+        <p>the FEI stablecoin initially had the concept of <a href="https://assets.fei.money/docs/whitepaper.pdf">direct incentives</a>, essentially as FEI deviated from its peg of $1 a reward/penalty would take place for a mint/burn. if FEI is trading at $0.98 minters earn 2% and burners are hit with a 4% penalty and vice versa. the trick here is that the farther FEI deviates from its peg the exponentially higher penalty. here is a (brutal) graph of what FEIs price movement from peg <a href="https://twitter.com/bantg/status/1379755790496641025?s=20">looks like</a> when adding in direct incentives.</p>
+        <p><img src="https://images.mirror-media.xyz/publication-images/DlQD-HeoltblmUT78gD7u.png?height=800&amp;width=1200" alt="https://images.mirror-media.xyz/publication-images/DlQD-HeoltblmUT78gD7u.png?height=800&amp;width=1200"></p>
+        <blockquote>
+        <p>note: that this did not work well for FEI and is since removed from the protocol</p>
+        </blockquote>
+        <p>as much as direct incentives did not really work for FEI, it could be interesting to try in a perp context. as mark deviates from the index you quadratically scale up/down the funding rate. doing so would hopefully attract for arbitrage opportunities and thus maintain a tighter mark/index peg.</p>
+        <p>closing out this aside, I have a feeling that we will see algo stablecoin designs implemented in perps, and protocols described in the context of perps in the future.</p>
+        <h3 id="power-perpetuals">power perpetuals</h3>
+        <p>power perpetuals are perhaps one of the most interesting research topics and products to come out of defi derivatives. the core concept is simple, a power perp (for example ETH^2) tracks the price of ETH squared. if ETHs price rises by 200% ETH^2 rises by 400%, if ETH price goes down you loss less than you would through <a href="https://twitter.com/wadepros/status/1478808188250206216?s=20">2x constant leverage</a></p>
+        <blockquote>
+        <p>sidenote you should read: How to lose 99.9% and still score a 500x</p>
+        </blockquote>
+        <p>squeeth or any power perpetual (<a href="https://01.xyz/">01protocol</a> will be launching sol^2 soon) can be used for a lot of different strategies, here is an initial list</p>
+        <ul>
+        <li>Longing Squeeth means you are long gamma, and is similar to holding a perpetual at the money call options</li>
+        <li>Shorting Squeeth means you are short gamma, and is similar to selling a perpetual at the money straddle</li>
+        <li><a href="https://medium.com/opyn/how-to-hedge-options-with-squeeth-b5e30d5d83ac">Hedging Options</a></li>
+        <li><a href="https://medium.com/opyn/hedging-uniswap-v3-with-squeeth-bcaf1750ea11">Hedging LP positions</a></li>
+        <li>1x Long ETH Exposure with a oSQTH:USDC LP</li>
+        <li>1.5x Long ETH Exposure with a oSQTH:ETH LP</li>
+        <li>Usage as a Volatility oracle</li>
+        </ul>
+        <blockquote>
+        <p>you can see a full list of use cases and articles on squeeth here</p>
+        </blockquote>
+        <p>I am extremely excited to see where power perps take us in 2022 simply because I know that the list above is just scratching the surface.</p>
+        <p>if you want to think about use cases I suggest reviewing <a href="https://twitter.com/wadepros/status/1475621813988335618?s=20">squeeth mental models</a> and iterating from there.</p>
+        <p>it can also be helpful to know that holding squeeth provides a similar payoff to holding an always at the money call (shorting is like an at the money straddle). however power perps are not limited to just thinking in the option space, it can also be <a href="https://opyn.gitbook.io/squeeth/resources/squeeth-faq#ecc9">compared</a> to a perp swap and constant leverage (something like FLI).</p>
+        <h2 id="whats-next">whats next</h2>
+        <p>this has already been a somewhat long post, so to end here is my shortlist of innovations I’ll be looking at in 2022.</p>
+        <ul>
+        <li><strong><a href="https://colab.research.google.com/drive/1mrxubKiFUhlavol4a38NJYaANdSNAEun">iterations</a> on power perps</strong></li>
+        </ul>
+        <p>opyn laid it out nicely</p>
+        <blockquote>
+        <p>A 0-perp is a stablecoinA 1-perp is a futureAny p-perp that is not 0 or 1 is a volatility oraclePower perps can be traded against fixed-expiry power futuresA 2-perp (squeeth) is an excellent hedge for options and constant function market makers such as uniswap and curveA 0.5 perp (sqrth) is a perfect hedge for a uniswap LP position and it&#39;s coming next!</p>
+        <ul>
+        <li><strong>an increased focus on composability</strong><ul>
+        <li>I feel like many derivative designs have been optimizing for liquidity and the next step will be composability</li>
+        <li>I am looking at usage in other protocols, cross margined, (maybe) cross chain margin</li>
+        </ul>
+        </li>
+        <li><strong>vaults for everyone</strong><ul>
+        <li>continue to create vault products that are accessible (but transparent) to all investors and allow them to participate in high payoff niche trading strategies</li>
+        </ul>
+        </li>
+        </ul>
+        </blockquote>
+        <p>I have made hopefully comprehensive list of the DeFi derivatives landscape here</p>
+        <p>if you are working on a derivatives project, or think I missed any don’t hesitate to reach out and DM me at <a href="https://twitter.com/0xperp">@0xperp</a></p>
+    </article>
+</body>
+</html>
