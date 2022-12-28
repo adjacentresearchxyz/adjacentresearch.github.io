@@ -1,0 +1,189 @@
+<h1 id="ramblings-on-amms-and-orderbooks">Ramblings on AMMs and Orderbooks</h1>
+<h1 id="brief-history-of-automated-market-makers">Brief History of Automated  Market Makers</h1>
+<p>This post is meant to provide an overview of the Automated Market Maker (AMM) space. First by reviewing some of the history and various designs. Following will be a walkthrough of using AMM pricing functions for other applications than spot trading leading to interesting dynamics and the evolving relationship between onchain orderbooks and AMMs.</p>
+<blockquote>
+<p>Everything written in the post is outlined in the following repository
+<a href="https://github.com/0xperp/awesome-amm">https://github.com/0xperp/awesome-amm</a></p>
+</blockquote>
+<h3 id="a-little-history">A Little History</h3>
+<p>While the existence of AMMs truly took off with <a href="https://uniswap.org">Uniswap</a> there is quite a history to it. </p>
+<p><strong>Sep 2, 2015:</strong> <a href="https://forum.gnosis.io/t/market-maker-order-book/19">Martin Köppelmann: Gnosis Market Maker Orderbook</a></p>
+<ul>
+<li>Describes the idea of including a market maker into an orderbook</li>
+</ul>
+<p><strong>Sep 26, 2016:</strong> <a href="https://www.reddit.com/r/ethereum/comments/54l32y/euler_the_simplest_exchange_and_currency/">Nick Johnson: Euler</a></p>
+<ul>
+<li>Using a single token Euler as a pair for all other tokens to always trade against</li>
+</ul>
+<p><strong>Oct 3, 2016:</strong> <a href="https://www.reddit.com/r/ethereum/comments/55m04x/lets_run_onchain_decentralized_exchanges_the_way/">Vitalik: Let&#39;s run on-chain decentralized exchanges the way we run prediction markets</a></p>
+<ul>
+<li>Summarizing the posts above from Martin and Nick, Vitalik mentions that AMMs should function like existing on-chain prediction markets (such as <a href="https://augur.net">Augur</a>)</li>
+</ul>
+<p><strong>Mar 6, 2017: <a href="https://www.notion.so/Ramblings-on-AMMs-and-Orderbooks-712270b0d9b04f9294154662714f6bec">Alan Lu: Building a Decentralized Exchange in Ethereum</a></strong></p>
+<ul>
+<li>Describes various potential invariants for an AMM</li>
+</ul>
+<p><strong>Mar 2, 2018: <a href="https://ethresear.ch/t/improving-front-running-resistance-of-x-y-k-market-makers/1281">Vitalik: x*y=k market makers</a></strong></p>
+<ul>
+<li>Vitalik recaps his post from two years prior and mentions Martin Köppelmann’s suggestion  of the <code>x*y=k</code> automated market maker with further simulations and functions</li>
+</ul>
+<p><img src="files/hayden.png" alt="Hayden Tweet"></p>
+<ul>
+<li><a href="https://www.notion.so/Ramblings-on-AMMs-and-Orderbooks-712270b0d9b04f9294154662714f6bec">Uniswap V1 Contracts</a></li>
+<li>Uniswap received a <a href="https://www.notion.so/Ramblings-on-AMMs-and-Orderbooks-712270b0d9b04f9294154662714f6bec">grant from the Ethereum Foundation in August</a></li>
+</ul>
+<h3 id="various-amm-launches">Various AMM Launches</h3>
+<p>Interestingly on the same day that Hayden posted his comment on the Uniswap V1 implementation, <a href="https://bancor.network">Bancor</a> released their initial <a href="https://storage.googleapis.com/website-bancor/2018/04/01ba8253-bancor_protocol_whitepaper_en.pdf">whitepaper</a>. Bancor’s primary innovation was their <em><a href="https://blog.bancor.network/smart-tokens-101-63edc2cc5a89">Smart Tokens</a></em> (can be thought of as a very early router). </p>
+<ul>
+<li><a href="https://kyber.network">Kyber</a> released their <a href="https://www.notion.so/Ramblings-on-AMMs-and-Orderbooks-712270b0d9b04f9294154662714f6bec">whitepaper</a> about a year later in 2019 with aggregated liquidity pools and an institutional focus.</li>
+<li>September 2019 <a href="https://balancer.fi/whitepaper.pdf">Balancer</a></li>
+<li>November 2019 <a href="https://curve.fi">Curve</a> released the stable swap <a href="https://curve.fi/files/stableswap-paper.pdf">whitepaper</a> meant for trading stablecoins and pegged assets</li>
+<li>March 2020 <a href="https://uniswap.org">Uniswap</a> released <a href="https://www.notion.so/Ramblings-on-AMMs-and-Orderbooks-712270b0d9b04f9294154662714f6bec">Uniswap V2</a></li>
+<li>August 2020 Mooniswap <a href="https://www.notion.so/Ramblings-on-AMMs-and-Orderbooks-712270b0d9b04f9294154662714f6bec">Whitepaper</a>, Front Running Resistance</li>
+<li>March 2021 <a href="https://uniswap.org/whitepaper-v3.pdf">Uniswap V3</a>, Concentrated Liquidity</li>
+</ul>
+<blockquote>
+<p>If there is a notable design not listed please comment or send a DM my way</p>
+</blockquote>
+<h2 id="common-designs">Common Designs</h2>
+<p>Below is a list of common AMM designs and their pros and cons</p>
+<h3 id="constant-product">Constant Product</h3>
+<p>The constant product market maker is the most common AMM invariant that exists. It can be simply modeled as <code>x * y = k</code> . X and Y are the reserves for each asset, as assets are traded through this function X and Y increase or decrease in their reserves in a way that keeps a constant K (not counting fees charged). </p>
+<p><img src="https://github.com/0xperp/awesome-amm/blob/main/images/constant_product.png?raw=true" alt="Constant Product Market Maker"></p>
+<p>Constant Product Market Maker</p>
+<p>The constant product formula has generally become the most forked AMM invariant, primarily due to its simplicity and ease of use from a liquidity provider&#39;s perspective.  </p>
+<h3 id="stableswap">Stableswap</h3>
+<p><a href="https://curve.fi">Curve</a> launched an AMM with the stableswap invariant primarily to cater to stablecoins and pegged or like-priced assets. </p>
+<p>The Curve team realized that like-priced tokens can trade on a constant sum, <code>x + y = C</code> for the majority of the time. However, when a pool <em>does</em> become imbalanced Curve adjusts to the constant product invariant making swaps more expensive and allowing arbitragers to bring the reserves of each asset back to equal.</p>
+<p><img src="files/stableswap.png" alt="Stableswap"></p>
+<p>Stableswap</p>
+<p><a href="https://miguelmota.com/blog/understanding-stableswap-curve/">Here</a> is a very good post on understanding the Stableswap invariant </p>
+<h3 id="constant-mean">Constant Mean</h3>
+<p><a href="https://balancer.fi">Balancer</a> proposed and launched a generalization of the constant product market maker, the constant mean invariant. This allowed more than two assets to be provided as liquidity and for weights outside of 50/50. </p>
+<p>Given this <a href="https://balancer.fi">Balancer</a> and other constant mean market makers can be used as a portfolio manager</p>
+<p><img src="https://github.com/0xperp/awesome-amm/blob/main/images/constant_mean.png?raw=true" alt="Constant Mean Market Maker"></p>
+<p>Constant Mean Market Maker</p>
+<p>For a very good understanding of <a href="https://balancer.fi">Balancer</a> refer <a href="https://token-engineering-balancer.gitbook.io/balancer-simulations/understanding-balancer-amms/balancer-basics">here</a></p>
+<h3 id="concentrated-liquidity">Concentrated Liquidity</h3>
+<p><a href="https://uniswap.org">Uniswap V3</a> was launched as the first concentrated liquidity AMM. This allows for liquidity that is allocated within a custom price range. In earlier versions, liquidity was distributed uniformly along the price curve between 0 and infinity. Allowing custom liquidity distributions allows for much higher capital efficiency resulting in more flexibility for a liquidity provider regarding their exposure and payoff along with a deeper and tighter market for a trader.</p>
+<p>Concentrated Liquidity relies on the concept of virtual liquidity which can be read and derived in their <a href="https://uniswap.org/whitepaper-v3.pdf">whitepaper</a></p>
+<p><img src="files/liquidity.png" alt="Various liquidity distributions"></p>
+<p>Various liquidity distributions</p>
+<h2 id="virtual-automated-market-makers">Virtual Automated Market Makers</h2>
+<p>A virtual automated market maker (vAMM) uses formulas, such as constant product, but <em>only</em> as a price discovery mechanism.</p>
+<p>Generally, a vAMM product is designed with a &quot;clearing house&quot; or &quot;controller&quot; contract in which all of the collateral deposits are held.</p>
+<p>vAMMs are primarily used for leverage on crypto perpetual futures contracts in which the collateral in the clearing house backs virtual assets that users can trade. However, they can be used to trade just about <em>any</em> price feed given sufficient liquidity and traders. For example <a href="https://overlay.market/">overlay.market</a> allows you to trade various data streams or <a href="https://nftperp.xyz/">nftperp.xyz</a> which allows a trader to long or short floors of various NFT projects. </p>
+<p>Following the release of <a href="https://perp.fi/">Perpetual Protocol&#39;s</a> first vAMM there have been many iterations since, particularly with the price discovery mechanism.</p>
+<blockquote>
+<p>Quick aside: Even though this was based on the lightning network and did not explicitly mention a virtual automated market maker it seems like the <a href="https://research.paradigm.xyz/RainbowNetwork.pdf">Rainbow Network</a> was one of the first written ideas of using collateral in one asset to trade virtual price feeds</p>
+</blockquote>
+<h3 id="vamms-and-their-pricing">vAMMs and their Pricing</h3>
+<p>There have been many iterations of vAMMs trying multiple AMM invariants for their pricing to drive higher liquidity, more consistent funding rates, and trying to attract more traders. </p>
+<p>A few notable examples are </p>
+<ul>
+<li><a href="https://perp.com">Perpetual V1</a> and their  constant product vAMM based on Uniswap V2</li>
+<li><a href="https://www.notion.so/2f032b69347d4644b51639f326242710">Perpetual V2</a> and their concentrated liquidity pricing based on Uniswap V3</li>
+<li><a href="https://drift.trade">Drift V1</a> and their dynamic constant product vAMM</li>
+<li><a href="https://hubble.exchange">Hubble</a> and their CurveCrypto invariant</li>
+</ul>
+<p>To date a large majority of vAMMs are “player v. player” there has been some pretty good research from the <a href="http://rage.trade">rage.trade</a> team on this in <a href="https://medium.com/@ragetrade/the-perpetual-pvp-ponzi-beaff4a0c662">The Perpetual PvP Ponzi</a>. With advancements like using newer AMM invariants (eg. concentrated liquidity) or adding in various market layers (like Drift V2 and JIT), vAMMs have the potential to become a preferred market for trading any asset (or data feed!). </p>
+<p> A vAMM simply uses traditional AMM formulas for its pricing which allows for an almost <em>infinite</em> number of assets and product types to trade along with a lot of flexibility and experimentation on the execution and order-flow layer. </p>
+<h2 id="onchain-orderbooks">Onchain Orderbooks</h2>
+<p>High-performance chains like <a href="https://solana.com">Solana</a> and <a href="https://near.org">Near</a> along with the upcoming variety of Diem forks (<a href="https://aptoslabs.com">Aptos</a>, <a href="https://www.notion.so/Ramblings-on-AMMs-and-Orderbooks-712270b0d9b04f9294154662714f6bec">Sui</a>, <a href="https://www.notion.so/Ramblings-on-AMMs-and-Orderbooks-712270b0d9b04f9294154662714f6bec">OL</a>, etc.) have allowed for the creation of on-chain orderbooks. Some of them are listed below </p>
+<ul>
+<li><a href="https://dydx.exchange">dydx</a></li>
+<li><a href="https://www.projectserum.com">Serum</a></li>
+<li><a href="https://tonic.foundation">Tonic</a></li>
+<li><a href="https://www.notion.so/DeFi-Greeks-7fa5fcb1f92048dcbf3322777b483fad">Spin</a></li>
+<li><a href="https://www.notion.so/DeFi-Greeks-7fa5fcb1f92048dcbf3322777b483fad">Orderly</a></li>
+<li><a href="https://www.econialabs.com">Econia</a></li>
+</ul>
+<p>Orderbooks have the benefit over traditional AMMs as markets can be quoted very tight given traditional market makers will (generally) help to provide liquidity, trades can execute quickly, and this often leads to better pricing. </p>
+<p>While orderbooks excel in providing optimal pricing and execution the catch is: There needs to be enough liquidity and active market makers constantly updating their quotes. This is especially important when you consider the pure number of assets traded onchain. </p>
+<p>AMMs excel in this case as they support</p>
+<ul>
+<li>Permissionless asset listing and market creation</li>
+<li>Passive liquidity (anyone can be a maker!)</li>
+</ul>
+<h1 id="order-matching-and-liquidity-provisioning">Order Matching and Liquidity Provisioning</h1>
+<p>When designing an orderbook or an AMM order flow and the provisioning of liquidity are very important. The flow of orders into the exchange along with how they are matched is important to ensure the best possible execution for a trader. Similarly, the provisioning of the liquidity to be used for matching orders is equally as important as it helps determine the best prices for traders. </p>
+<p>Orderflow and matching are important to an exchange, particularly in assets that trade in large volumes, as poor execution can result in a bad experience for traders. </p>
+<p>The provisioning of liquidity is important for longer tail assets as they are generally less liquid. This means that the liquidity that is provisioned needs to be provided in the most capital-efficient way possible to ensure the best execution for a trader. </p>
+<p>Below are overviews of how various orderbooks and AMMs orders currently flow and match along with how liquidity is provisioned on them with a discussion on what various hybrid implementations look like. </p>
+<h2 id="orderflow-and-matching">Orderflow and Matching</h2>
+<p>There are currently a few ways in which orders are matched and/or routed into a trading protocol. A centralized orderbook runs its own internal matching engine, a decentralized orderbook operates its matching via a network of validators and/or keepers and generally, AMMs are at the mercy of the block producers. </p>
+<h3 id="amm-matching-and-flow">AMM Matching and Flow</h3>
+<p>As mentioned above generally AMMs order flow and its matching are at the mercy of the block producers. </p>
+<p>When a user initiates a swap on an AMM they submit their order which is propagated throughout the mempool waiting to be included in a block (executed). The rise of <a href="https://fbifemboy.substack.com/p/the-future-of-maximal-extractable">searchers extracting value from the mempool</a> (MEV) leads to far different dynamics for AMMs flow and matching. </p>
+<p>Operating as a block producer (or bribing one) grants priority access to flow, how it is ordered and matched. </p>
+<p>Sometimes this results in better execution for traders such as in the case of <a href="https://medium.com/coinmonks/quantifyng-just-in-time-liquidity-in-uniswap-v3-23ac1db729c5">Just in Time Liquidity (JIT)</a>.  This is when a searcher sees a order in the mempool and re-orders the transactions into:</p>
+<ul>
+<li>Searcher provides liquidity</li>
+<li>Users trade</li>
+<li>Searcher removes liquidity and collects fees</li>
+</ul>
+<p>This allows the searcher to only provide liquidity for a specific trade and collect a majority of fees for it, this results in better execution for the trader. </p>
+<p>JIT is an anomaly, frontruns, backruns, and sandwiches all result in worse execution for the trader. </p>
+<p>The struggle with a majority of AMMs is that all of their flow and matching can be directed and re-ordered by the block producers. </p>
+<h3 id="orderbook-matching-and-flow">Orderbook Matching and Flow</h3>
+<p><a href="https://projectserum.com">Serum</a> refers to the process of matching as <a href="https://docs.projectserum.com/serum-ecosystem/help#what-is-crank-turning">crank tuning</a>. Anyone is allowed to run a cranker and be <a href="https://docs.google.com/document/d/1isGJES4jzQutI0GtQGuqtrBUqeHxl_xJNXdtOv4SdII/edit#">rewarded</a> with a portion of transaction fees for it. This is an example of an <em>onchain orderbook</em>, all orders are posted on chain and crankers ensure that they are being matched and executed properly.</p>
+<p>In <a href="https://dydx.exchange/blog/dydx-chain">dydx V4</a> the d<em>ydx chain</em> will have an <em>offchain orderbook</em> in which validators will each host a copy of the orderbook and match accordingly as they are selected to propose a block. </p>
+<blockquote>
+<p>In dYdX V4, each validator will run an in-memory orderbook that is never committed to consensus (i.e., off-chain). Orders placed and cancellations will be propagated through the network similar to normal blockchain transactions, ensuring that orders placed and cancellations will always make their way through the network. The orderbook that each validator stores is eventually consistent with one another. On a real-time basis, orders will be matched together by the network. The resulting trades are then committed on-chain each block. - <a href="https://dydx.exchange/blog/dydx-chain">dydx.exchange/blog/dydx-chain</a></p>
+</blockquote>
+<p>Creating an offchain orderbook in memory of the validators (or keepers) of your network can be extremely effective as it allows you to have a decentralized orderbook. </p>
+<p>A primary difference between offchain and onchain orderbooks (dydx and serum) is how and where orders flow. </p>
+<p>An onchain orderbook like <a href="http://projectserum.com">Serum</a> <em>all</em> orders are posted and matched onchain meaning that all orders (filled or canceled) are visible to everyone onchain and <em>all</em> keepers (the matching engine) see and match the exact same orders.</p>
+<p>An offchain orderbook like <a href="http://dydx.exchange">dYdX v4</a> differs in its flow and (potentially matching). Orders are submitted to validators and thus need to be fully propagated in order for <em>all</em> validators to have the exact same set of orders (see <em>The orderbook that each validator stores is eventually consistent with one another</em> in the dydx chain excerpt above). </p>
+<p>When orders are not fully posted on chain and are submitted to some type of validator or keeper network, the flow can be controlled, bribed, and prioritized directly at the protocol level. </p>
+<p>With the rise of proprietary block building (<a href="https://flashbots.net">Flashbots</a> on Ethereum, <a href="https://jito.wtf">Jito</a> on Solana, <a href="https://skip.money">Skip</a> on Cosmos) controlling, bribing, and prioritizing flow is also possible for onchain orderbooks but outsourced to external block builders. </p>
+<p>A good example of how reflexive it can be for a protocol to be able to incentivize and direct flow could be seen in something like this. A large trader on dYdX is already incentivized to acquire $DYDX for fee discounts but is also incentivized to acquire $DYDX so that they can run a validator node. When a large trader operates their own validator they can control the local flow of orders. Meaning when they are a block proposer they could prioritize their own orders and trades allowing the trader to ensure the best execution possible. </p>
+<h3 id="a-hybrid-approach">A Hybrid Approach</h3>
+<p>In an onchain model generally orders flow directly onchain where they are matched and executed by an external keeper network. In an offchain model, orders flow directly into the validator or keeper network in which they are matched and executed. </p>
+<p>A primary example using both on and off-chain matching and execution can be found in <a href="https://cow.fi">CowSwap</a> which uses <a href="https://docs.cow.fi/overview/introduction">batch auctions and order routing</a> to fill either off or onchain. </p>
+<p><img src="files/cow.png" alt="Cow Swap"></p>
+<p><a href="https://cow.fi">CowSwap</a> allows for optimal execution for traders by batching orders to find any that could be matched together and if not settling onchain on an AMM. </p>
+<p>Through batching offchain and settling onchain if needed, <a href="https://cow.fi">CowSwap</a> first directs the flow of orders offchain for optimal execution and if not matches it onchain (executing the trade as best as possible). </p>
+<p>Another example can be found in <a href="https://drift.trade">Drift V2</a>. Orders will flow and be matched through various forms of liquidity. Launching as the <a href="https://twitter.com/cindyleowtt/status/1569713533298016258">Liquidity Trifecta</a>, <a href="https://drift.trade">Drift</a> orders will flow through an auction, offchain order book, and AMM resulting in optimal execution for traders.  </p>
+<p><img src="files/drift.png" alt="Drift"></p>
+<p>Orders flow as follows</p>
+<ol>
+<li>Taker orders are first placed in a <a href="https://docs.drift.trade/just-in-time-jit-auctions">short-lived auction</a> in which Makers can bid on filling the order <ol>
+<li>This results in the most optimal execution for the trader</li>
+</ol>
+</li>
+<li>A limit or conditional order is routed through an <a href="https://docs.drift.trade/keepers-and-decentralised-orderbook">offchain keeper network</a> in which all orders initially are attempted to be matched against each other (if not routed to the auction first and then vAMM)</li>
+<li>If no Maker bids in the auction (or a Maker does not fill the entire order size) orders flow into the <a href="https://docs.drift.trade/drift-amm">AMM</a> which serves as a constant source of guaranteed liquidity for orders to be filled against<ol>
+<li>This is the final backstop and ensures that orders are always filled</li>
+</ol>
+</li>
+</ol>
+<p>By allowing orders to flow through multiple exchange venues a trader can see the best of both worlds. They can have optimal execution <em>and</em> ensure that they will always be filled. </p>
+<h2 id="liquidity-provisioning">Liquidity Provisioning</h2>
+<p>If you have been paying attention to the on-chain trading space over the last few years you will have noticed that AMMs (spot or virtualized) and orderbooks have started to <em>feel</em> the same.  </p>
+<p>Both AMMs and Orderbooks can now trade just about any asset long/short and with leverage: spot, expiring options or futures, perpetuals, everlasting options, or power perpetuals, etc. In fact, the primary difference between them is <em>how</em> their liquidity is provisioned and the management of it. </p>
+<p>Just in Time Liquidity (JIT) and the ability to provide passive liquidity onto an orderbook have begun to blur the lines between an AMM and an orderbook. </p>
+<h3 id="active-liquidity-provisioning">Active Liquidity Provisioning</h3>
+<p><strong>Just in Time Liquidity</strong> </p>
+<p>In a concentrated liquidity AMM rather than providing passive liquidity or managing it by re-quoting your ranges, JIT is the concept of waiting for a trade, immediately provisioning liquidity explicitly at the price quoted, and then removing your liquidity. </p>
+<p>As you might be able to see this type of order execution starts to look like a <a href="https://www.youtube.com/watch?v=mBVgnufwZpA">janky RFQ orderbook</a>, traders receive a quote, queue their trade, and are filled (often at a better price) prior to the trade even hitting the passive liquidity in the pool. </p>
+<p><em>JIT allows for active liquidity to be provisioned for any trade on an AMM.</em></p>
+<p><strong>Active Liquidity Managers</strong></p>
+<p>Various products like <a href="https://www.notion.so/DeFi-Greeks-7fa5fcb1f92048dcbf3322777b483fad">gamma</a>, <a href="https://www.arrakis.finance">arrakis</a>, or <a href="https://charm.fi">charm</a> recognized that in a concentrated liquidity AMM and the ability to quote your own upper and lower tick ranges there needs to be a product that can actively manage all of the passive liquidity currently provided to an AMM. </p>
+<p>Through a network of keepers, managers operate various strategies based on the total liquidity and volatility of a given pool.  </p>
+<p><em>Active liquidity managers allow for passive liquidity on an AMM to be actively managed.</em> </p>
+<h3 id="passive-liquidity-provisioning">Passive Liquidity Provisioning</h3>
+<p>Orderbooks often struggle to list new assets as fast as they can be provisioned on an AMM. This is due to insufficient market maker interest and thus liquidity that can actively quote prices. </p>
+<p>Some projects have recognized that in order to create more depth in a given market passive liquidity might be able to help. </p>
+<p>Taking passive liquidity batching it and <em>layering</em> it on top of the orderbook so that it follows the curve of a given AMM invariant can greatly help to provide more consistent pricing and quotes in an emerging market. </p>
+<p><em>Passive liquidity provisioning allows for liquidity to be added to an orderbook according to an AMM invariant</em></p>
+<h3 id="in-practice">In Practice</h3>
+<p>First realized by MEV searchers and implemented on Uniswap V3, JIT helps to provide better and more active price quoting on an AMM. </p>
+<p>The vAMM <a href="https://drift.tradde">Drift</a> has implemented JIT liquidity into its <a href="https://www.drift.trade/updates/drift-v2#jit-just-in-time-liquidity-mechanism">V2 design</a>. A given trade will first be routed to market makers who have a short amount of time in which they can choose to take the other side of the order. If the order is not or partially filled the remaining quantity will be routed to the passive liquidity providers. This allows traders to always receive the best execution possible. </p>
+<p>The AMMs <a href="https://raydium.gitbook.io/raydium/">Raydium</a> and <a href="https://docs.atrix.finance/docs/intro">Atrix</a> have started to take passive liquidity and add it as a various set of orders on top of the <a href="https://www.projectserum.com">Serum</a> orderbook, providing further fees for liquidity providers and deeper markets for Serum. </p>
+<p>The orderbook <a href="https://01.xyz">01</a> took a <a href="https://01exchange.medium.com/introducing-zamm-zeroone-automated-market-maker-41e422550194">similar approach</a> and in other to provide deeper liquidity to their orderbook allowed users to provide passive liquidity which would then be batched and provided according to the constant product invariant on the <a href="https://01.xyz">01</a> orderbook. </p>
+<hr>
+<p>As hybrid implementations for order-flow and liquidity provisioning continue to be iterated on we are moving closer to the final design for on-chain trading. One that can support practically any product, permissionless markets, with great execution, depth, and liquidity. </p>
+<blockquote>
+<p>If you find the AMM/Orderbook space interesting, are working on a new idea, just kicking around some new research, or have comments / thoughts on this article feel free to reach out on Twitter @0xperp</p>
+</blockquote>
