@@ -1,0 +1,459 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Adjacent Research" />
+
+    <title>AMMs and Orderbooks</title>
+
+    <link rel="stylesheet" href="../styles.css" />
+</head>
+
+<body>
+    <h1 id="ramblings-on-blockspace">Ramblings on Blockspace</h1>
+    <p>Below is an overview of the creation, usage, value, and trading of the new digital commodity: <em>blockspace</em>
+    </p>
+    <blockquote>
+        <p>Everything written in the post is outlined in the following repository <a
+                href="https://github.com/0xperp/awesome-blockspace">github.com/0xperp/awesome-blockspace</a></p>
+    </blockquote>
+    <p>The ability to transact, store data and perform compute on a blockchain is what comprises blockspace. Intuitively
+        the transactions that are included in a block are the blockspace.</p>
+    <p><img src="Ramblings%20on%20Blockspace%2074c75d883abf43ae885281108ea90b91/Untitled.png"
+            alt="Ramblings%20on%20Blockspace%2074c75d883abf43ae885281108ea90b91/Untitled.png"></p>
+    <p>Increasingly in various <a
+            href="https://thegeneralist.substack.com/p/blockspace-an-introduction-with-chris">articles</a>, <a
+            href="https://gateway.pinata.cloud/ipfs/QmWoKtHLQdRxLekVjoei9Lf4ez2vyKxoz1U7KExTX6bZtX">posts</a>, and <a
+            href="https://a16zcrypto.com/posts/article/blockspace-explained/">podcasts</a> blockspace is referred to as
+        the “best product to be selling” or the “most important commodity” to be selling in the 2020s. Understanding
+        what blockspace is, how it is created and valued can be quite confusing and is constantly evolving.</p>
+    <p>All blockspace is not created equal and actually varies quite a bit. Blockspace is a class of commodities that
+        can be easily graded on common characteristics like security, flexibility, and decentralization. This piece will
+        detail each characteristic and provide some examples then explore the market participants for one of the most
+        valuable digital commodities that exists. </p>
+    <p>First a quick aside on consensus mechanisms that secure blockspace</p>
+    <blockquote>
+        <p>**Proof of work (PoW) requires miners to solve complex mathematical problems in order to validate
+            transactions and create new blocks. The first miner to solve the problem is then rewarded with newly minted
+            tokens. The process of solving these problems requires a large amount of computational power, making it
+            difficult for any one miner to control more than 50% of the network&#39;s computing power. If a miner were
+            to control more than 50%, they would be able to launch a 51% attack. In a 51% attack, the miner with the
+            majority computing power can manipulate transactions and even reverse them, potentially allowing them to
+            double spend coins. Today almost all of PoW production occurs through a mining pool.</p>
+    </blockquote>
+    <p>Proof of stake (PoS) is a newer consensus mechanism that requires users, known as validators, to put up a certain
+        amount of cryptocurrency as collateral in order to validate transactions and create new blocks. Validators are
+        chosen based on the amount of tokens they have staked, and are incentivized to act in the best interest of the
+        network.**</p>
+    <blockquote>
+    </blockquote>
+    <h1 id="qualities">Qualities</h1>
+    <p>Blockspace can be built and produced in many different ways along with being consumed for a multitude of
+        different purposes. Every blockspace market has varying levels of security, decentralization, and guarantees
+        along with different choices in the size, amount, and how the blockspace is verified. When deciding to be
+        participant in the blockspace economy there are a few different qualities that you might want to evaluate.</p>
+    <h3 id="security">Security</h3>
+    <p>Perhaps the most important quality is the security of the blockchain. How hard and how many resources are needed
+        to attack the chain. Commonly this is known as a &quot;51% attack&quot; but there are other types of consensus
+        mechanisms that only require 33% of producers to agree.</p>
+    <p>A common metric for measuring a blockchain&#39;s security is by looking at the &quot;cost to attack&quot;. In
+        order to control 51% of the network how much does it cost to rent and/or purchase the hashpower/stakeweight. You
+        can find (extremely) rough estimates on sites like <a href="https://www.crypto51.app/">crypto51</a>.</p>
+    <p>Full blown take over of a blockchain is quite rare and has only happened a few times one being the Justin Sun’s
+        <a href="https://www.publish0x.com/bitguy/steemit-and-justin-sun-detailed-timeline-full-story-xnlxedg">takeover
+            of the steem blockchain</a>. Often I think about why blockchains such as Dash, BitcoinSV, or even more well
+        known blockchains like Zcash have not seen more regular full takeovers yet, but if they have such poor security
+        its not hard to reason that their other qualities are just as or even worse.</p>
+    <p>A far more common attack is a simple reorg of a blockchain. This is seen quite often in blockchains like Polygon
+        which reorgs <a href="https://polygonscan.com/blocks_forked">quite often</a>. It is important to note that
+        re-orgs on Polygon aren’t always malicious given Polygon’s probabilistic consensus however a reorg can also be
+        an attack in which block producers reorganize transactions from prior blocks for their benefit.</p>
+    <p>To better understand the problems with reorganization consider the following example of a small business bidding
+        on advertising space on a billboard on a popular highway. The business owner finishes a bidding war with their
+        competitor paying 20% more than they initially wanted. Happy with the billboard they send their designs to the
+        billboard company. A few weeks later the small business owner takes a drive to the highway to see his
+        advertisement only to find that their competitor is on the billboard. This is similar to what happens in a
+        reorg, transactions that you previously paid for are “rolled back” and re organized. </p>
+    <p>Security is likely the most important characteristic for a consumer of blockspace, they want to ensure
+        transactions that they pay for are secure and relatively immutable. This directly impacts the value of the
+        blockspace, the producer’s willingness to spend resources to produce the blockspace, and eventually the traders
+        appetite to trade it. </p>
+    <h3 id="decentralization">Decentralization</h3>
+    <p>A close runner-up to the security of the blockchain is the decentralization of it. Decentralization has a few
+        equally as important parts</p>
+    <ul>
+        <li>Nakamoto Coefficient</li>
+        <li>Distinct Operators</li>
+        <li>Geographic Distribution</li>
+        <li>Client Diversity</li>
+        <li>Unique Hardware</li>
+    </ul>
+    <blockquote>
+        <p><a
+                href="https://github.com/theSamPadilla/blockchain-infra-decentralization-metrics">github.com/theSamPadilla/blockchain-infra-decentralization-metrics</a>
+            is a really nice repository that classifies blockchain decentralization based on</p>
+        <ul>
+            <li>Stake distribution across infrastructure providers.</li>
+            <li>Stake distribution across geographies.</li>
+            <li>Validator distribution across infrastructure providers.</li>
+            <li>Validator distribution across geographies.</li>
+        </ul>
+    </blockquote>
+    <p>The Nakamoto Coefficient is by far the most common metric for measuring a blockchains decentralization. It is a
+        very simple formula <code># of validators or % of hashrate needed for attack</code> and is helpful in
+        understanding the number of validators that would have to collude together to successfully slow down or block
+        any respective blockchain from functioning properly.</p>
+    <p>Equally as important as the number of actors is the number of <em>distinct</em> actors that are needed for
+        collusion. For example Coinbase operates about 7% of validators on Ethereum. Lido, a liquid staking provider,
+        currently makes up ~33% of the validators on the Ethereum Network. Lido does not run validators themselves,
+        instead they work with trusted operators in the space like Coinbase. When counting their base share plus the
+        number of validators that they operate on behalf of Lido, Coinbase actually makes up ~12% of the entire network.
+    </p>
+    <p><img src="Ramblings%20on%20Blockspace%2074c75d883abf43ae885281108ea90b91/Untitled%201.png"
+            alt="[https://dune.com/queries/2394100/3928083](https://dune.com/queries/2394100/3928083)"></p>
+    <p><a href="https://dune.com/queries/2394100/3928083">https://dune.com/queries/2394100/3928083</a></p>
+    <p>Bitcoin is generally regarded as a leader in decentralization although only has a <a
+            href="https://arxiv.org/pdf/2101.10699.pdf">nakamoto coefficient of around 5</a>. While it is true that
+        there are many unique and district mining operations Bitcoin mining pools have full and complete control over
+        the ordering of transactions in a block (until <a href="https://braiins.com/stratum-v2">Stratrum V2</a> is fully
+        implemented and used).</p>
+    <p>For the majority of Bitcoin&#39;s lifetime 1 or 2 pools control over 33% of all the hashrate and thus the
+        ordering of the transactions in a given block.</p>
+    <p><img src="Ramblings%20on%20Blockspace%2074c75d883abf43ae885281108ea90b91/Untitled%202.png"
+            alt="[https://mempool.space/graphs/mining/pools](https://mempool.space/graphs/mining/pools)"></p>
+    <p><a href="https://mempool.space/graphs/mining/pools">https://mempool.space/graphs/mining/pools</a></p>
+    <p>Some market participants care greatly about how their transactions are ordered in a particular block and having
+        the transactions entirely ordered by a single party greatly degrades the quality of the blockspace for them.
+        Note that this is the same for rollups that have a single sequencer. </p>
+    <p>Having a single party order/build the majority of the blockspace intuitively is a poor for decentralization but
+        also can have significant ramifications with regards to producers extracting additional value for themselves.
+        Commonly known as maximum extractable value (MEV), producers can extract large amount of value. It is also
+        important to note that MEV is helpful for certain applications to function well liquidations (remember “black
+        thursday” when liquidators failed to <a
+            href="https://medium.com/@whiterabbit_hq/black-thursday-for-makerdao-8-32-million-was-liquidated-for-0-dai-36b83cac56b6">show
+            up</a>?) , arbitraging to keep markets competitive, and even <a
+            href="https://x.com/0xcacti/status/1548470756987678726?s=20">searchers being needed for squeeth
+            rebalances</a> are all good examples.</p>
+    <p>MEV is a very large and important concept (the MEV supply chain is now it’s own <a
+            href="https://explore.flashbots.net/">multi-billion dollar industry</a>) to understand when discussing
+        blockspace it likely warrants it’s own piece. Instead here are a few points to know</p>
+    <ul>
+        <li>It is important to build a separate MEV supply chain as to not harm blockspace consumers. There are many
+            protocols working on solving this<ul>
+                <li><a href="https://writings.flashbots.net/mevm-suave-centauri-and-beyond">Suave</a> from Flashbots
+                </li>
+                <li><a href="https://www.jito.network/docs/introduction-to-jito/">Jito</a> for Solana</li>
+                <li><a href="https://docs.skip.money/">Skip</a> for Comsos</li>
+                <li><a href="https://braiins.com/stratum-v2">Stratum V2</a> for Bitcoin</li>
+                <li>(still waiting on Polkadot and Near based MEV solutions)</li>
+            </ul>
+        </li>
+        <li>MEV exists in Bitcoin to and large mining pools have <a
+                href="https://x.com/blockworksres/status/1659228801384194049?s=20">started to extract it</a></li>
+        <li>The amount of MEV that can be extracted is a direct correlation with how valuable the given blockspace is
+        </li>
+    </ul>
+    <h3 id="size-amount-validation">Size, Amount, Validation</h3>
+    <p>The actual specifications of the blockspace are also import factors to consider when judging the quality. These
+        are very simple and well defined</p>
+    <ul>
+        <li>How large are the blocks? How many transactions can fit in a single block? How much data can you fit in a
+            block?</li>
+        <li>How often are blocks produced? How many blocks are produced in a day?</li>
+        <li>How does the network come to consensus on the blocks?</li>
+    </ul>
+    <p>Questions around the size and the amount of blockspace are generally qualities that consumers or traders need to
+        consider. If a consumer is looking to complete a transaction in an hour how many total blocks are there to bid
+        for a transactions space on and as a trader how scarce is the blockspace.</p>
+    <p>Evaluating how the network comes to consensus on a block is likely a quality that an institutional consumer would
+        care about. This could be a fund or trading firm, but more likely an application built on top of the given
+        blockspace like an exchange, custodian, or L2. An exchange would likely assess how a network forms its consensus
+        because it can impact the execution for their users. Some examples of how various network actors form consensus
+    </p>
+    <ul>
+        <li>Round Robin / Leader Election<ul>
+                <li>In a round robin validators are periodically selected to build, propose, and include the entire
+                    block themselves.</li>
+                <li>Examples of this include Solana, <a
+                        href="https://v1.cosmos.network/resources/whitepaper">Cosmos</a>, and Polygon</li>
+            </ul>
+        </li>
+        <li>General Consensus<ul>
+                <li>In a general consensus network a producers broadcasts their block to the rest of the network and
+                    <em>if</em> agreed on the block is included.</li>
+                <li>Examples of this include Bitcoin</li>
+            </ul>
+        </li>
+        <li>Single Sequencer<ul>
+                <li>A majority of layer 2 networks implement a single sequencer who orders all transactions, forms them
+                    into blocks, and publishes them to the layer 1 or data availability layer</li>
+                <li>Examples of this include Arbitrum and Optimism</li>
+            </ul>
+        </li>
+    </ul>
+    <blockquote>
+        <p>Note: that the building of the blocks is often abstracted into its own auction like mechanism or even
+            eventually abstracted to its own chain like SAUVE. <a
+                href="https://joncharbonneau.substack.com/p/decentralizing-the-builder-role">Read here</a> for a really
+            good look at block production</p>
+    </blockquote>
+    <p>How consensus is come to effects the execution of the exchange in question a little differently.</p>
+    <p>The round robin leader election is often very fast but for networks that have not abstracted the block building
+        layer, exchange participants that are also validators have the upper hand. For a more detailed example see the
+        DyDx example in this <a href="https://adjacentresearch.substack.com/p/ramblings-on-amms-and-orderbooks">AMMs and
+            Orderbooks</a> piece.</p>
+    <p>The general consensus is the most fair for the execution the exchanges user&#39;s but currently struggles with
+        handling high throughput. As of 2023 a well functioning and fast orderbook has yet to really be seen on a
+        blockchain that uses a general consensus. In fact DyDx highlighted this in their blog post when they moved from
+        Ethereum mainnet to Starkware.</p>
+    <p>A single sequencer is very fast but also very centralized and an exchange building on a network that currently
+        uses a centralized sequencer needs to be okay with the possibility that the sequencer operator is frontrunning
+        or extracting some type of value from their user&#39;s orders.</p>
+    <p>A fourth option for the exchange would be to operate some parts of their infrastructure offchain, like their
+        orderbook. This is again highlighted in <a
+            href="https://adjacentresearch.substack.com/p/ramblings-on-amms-and-orderbooks">AMMs and Orderbooks</a>
+        under the hybrid section.</p>
+    <blockquote>
+        <p>Note: many protocol teams are now also exploring operating their own appchain, this has the benefits of
+            speed, scalability, and the centralized sequencer being operated by the protocol team although suffers from
+            the need of bootstrapping your own validator set and likely having far less security. More on this in the
+            flexibility quality.</p>
+    </blockquote>
+    <h3 id="availability">Availability</h3>
+    <p>Ensuring that access to consuming, accessing, and producing blockspace is widely available and can always be
+        consumed can be an extremely important quality.</p>
+    <p>Are you able to easily access the blockspace? Is it always available or are their chain halts or downtime? How
+        easy is it to run your own RPC node or access publicly available ones? Are RPCs generally overloaded, do they
+        have consistent uptime?</p>
+    <h3 id="uptime">Uptime</h3>
+    <p>As a consumer it is very important that you can you access blockspace market at any time. If a blockchain has
+        frequent halts or outages you can not reliably use the blockchain.</p>
+    <p>Take the example that you are a new liquidity provider who want to provide liquidity to a concentrated liquidity
+        AMM and you are choosing between the Solana and Ethereum blockchain. Solely evaluating the characteristic of
+        uptime the choice is easy, Solana and seemingly every L2 has seen several day long outages in the past year in
+        which the entire chain is unusable.</p>
+    <h3 id="chain-state-and-storage">Chain State and Storage</h3>
+    <p>As a producer (and maybe as a consumer) considering how accessible it is to download, verify, and store the full
+        chain state can be an important consideration.</p>
+    <p>As a blockspace producer you want to ensure that you have extremely high uptime and little dependence on others
+        in case they have an outage. Some blockchains like Solana or Near effectively require you to download chaindata
+        snapshots from AWS S3, Google BigTable, or other validators with often little to no way to sync and store the
+        chain data entirely yourself. </p>
+    <p>Chain state and storage is also an upmost consideration for applications or protocols that require historical
+        data. On Bitcoin or Ethereum it is possible to fully sync a node in a few days and have a full set of historical
+        data. On the other hand Solana&#39;s full chain state is primarily stored in a Google BigTable database and
+        takes up <em>petabytes</em> of data, rendering it next to impossible for any average consumer to sync and store.
+    </p>
+    <blockquote>
+        <p>Note: there are some significant engineering challenges in storing historical solana data but plenty of great
+            teams working on it. One such example is the Triton One team building <a
+                href="https://old-faithful.net/">Old Faithful</a></p>
+    </blockquote>
+    <h3 id="costs-and-fees">Costs and Fees</h3>
+    <p>Blockspace is valuable and has various costs and fees associated with producing and consuming it.</p>
+    <p>As a producer there are more traditional costs such as the upfront purchase and/or ongoing costs of various
+        hardware and software that allows you to operate on the network. More often than not there is also the initial
+        capital outlay for tokens that need to be posted as collateral to validate (as is the case in Proof of Stake
+        networks). In turn you generally receive block rewards from the network which could also include fees generated
+        from consumers of the blockspace you produced.</p>
+    <p>As a consumer in order to utilize blockspace on a given network you need to pay a fee for it to the block
+        producers (this does not count additional fees you might need to pay a protocol for your interaction).</p>
+    <p>Costs and fees vary depending on the blockchain&#39;s implementation and also how the fee market is designed.
+        Generally a chain implements one of the following designs</p>
+    <ul>
+        <li>Priority Gas Auctions (PGA)<ul>
+                <li>Consumers who what to utilize blockspace will submit their transaction with a given fee, the
+                    transaction sits in the mempool. Since the producer accrues the fees in the block they (generally)
+                    order the transactions in by highest fee.</li>
+                <li>This is a very simple fee market design and is the most common.</li>
+            </ul>
+        </li>
+        <li>EIP 1559<ul>
+                <li>Consumers who want to utilize blockspace will pay a base fee (which is burned) and a priority fee
+                    (or tip) which the block producers. Introduced for better consistency in estimated fees needed to be
+                    paid by a consumer.</li>
+                <li>This has primarily been implemented on Ethereum but prior was <a
+                        href="https://filecoin.io/blog/posts/eip-1559-in-filecoin/">implemented on Filecoin</a></li>
+            </ul>
+        </li>
+    </ul>
+    <p>The design of the fee market heavily influences the amount and potential willingness of a consumer to pay and how
+        much the producer is expected to receive for their block production.</p>
+    <blockquote>
+        <p>The research space for fee market design is quite interesting and extensive and I have complied an awesome
+            list at <a href="https://github.com/0xperp/awesome-fee-markets">github.com/0xperp/awesome-fee-markets</a>.
+        </p>
+    </blockquote>
+    <h3 id="flexibility">Flexibility</h3>
+    <p>Blockspace can be highly adaptable or very static. The majority of the time consumers likely prefer the space
+        that they are consuming to be very predictable and static, but there are certain use cases in which a consumer
+        (often a protocol) might want their space to be highly adaptable and flexible.</p>
+    <p>Flexible blockspace is the idea that blocks can be built differently according to various use cases. Maybe this
+        is adding pre and post instructions at the validator level, allowing blocksize to fluctuate or being able to
+        abstract block building.</p>
+    <p>Take the example that you are a lending and borrowing protocol that has started exploring launching their own
+        blockchain. They have a few options to consider launching</p>
+    <ul>
+        <li>Cosmos based Appchain</li>
+        <li>Rollup based on the Optimism or Arbitrum stack</li>
+        <li>Parachain on Polkadot</li>
+        <li>Subnet on Avalanche</li>
+    </ul>
+    <p>Each one of these has different considerations in security, decentralization, and usage.</p>
+    <ul>
+        <li>A Cosmos Appchain requires you to bootstrap your own security by incentivizing a validator set but allows
+            you to have extreme flexibility in your consensus, block building and execution of transactions (especially
+            by adding custom logic using functions like <code>BeginBlock</code> or <code>EndBlock</code> as referenced
+            <a href="https://github.com/tendermint/tendermint/blob/v0.34.x/spec/abci/abci.md">here</a>)</li>
+        <li>Building a rollup with the Optimism stack (currently) limits you to being centralized being able to only
+            operate a single sequencer, but allows you to have create extremely fast, EVM compatible blockspace</li>
+        <li>A Polkadot parachain allows for you to use the Polkadot shared security model but requires you to bid quite
+            a lot of DOT in the auction in order to be included.</li>
+    </ul>
+    <p>In brief</p>
+    <ul>
+        <li>A Cosmos Appchain has the ultimate flexibility in blockspace creation, control, and security</li>
+        <li>A Rollup provides flexible blockspace creation, but control and security is limited to a single and
+            centralized sequencer currently</li>
+        <li>A Parachain bootstraps security from the Polkadot mainchain… except you have to bid for it</li>
+    </ul>
+    <blockquote>
+        <p>Note: <a
+                href="https://joncharbonneau.substack.com/p/rollups-arent-real">joncharbonneau.substack.com/p/rollups-arent-real</a>
+            is a really good read dissecting the current state of rollups</p>
+    </blockquote>
+    <p>Bitcoin, Ethereum, Polkadot, etc. all produce generalized blockspace. Osmosis, Aevo, Lyra, Sentential are use
+        customized and specific blockspace to improve their products. </p>
+    <p>In the recent months it has become even easier to launch a OpStack, Arbitrum, or other rollup / appchain with
+        products like <a href="http://caldera.xyz">Caldera</a> and <a href="http://conduit.xyz">Conduit</a>.</p>
+    <h1 id="market-participants">Market Participants</h1>
+    <p>The blockspace market is extremely complex but can be broadly broken into producers and consumers. </p>
+    <h3 id="producers">Producers</h3>
+    <p>A Blockspace producer is a network participant that takes a set of transactions waiting to be be included and
+        actually builds them into a block by ordering them. Often this is one of the roles of a validator, miner, or
+        mining pool on a given chain. With the rise of MEV protocols this block building has largely been outsourced to
+        separate actors known as builders. The “MEV supply chain” is now quite complex and involves many distinct actors
+        as illustrated below</p>
+    <p><img src="Ramblings%20on%20Blockspace%2074c75d883abf43ae885281108ea90b91/Untitled%203.png"
+            alt="[https://writings.flashbots.net/mev-supply-chain/](https://writings.flashbots.net/mev-supply-chain/)">
+    </p>
+    <p><a href="https://writings.flashbots.net/mev-supply-chain/">https://writings.flashbots.net/mev-supply-chain/</a>
+    </p>
+    <p>On the proof of work side mining pools have full autonomy over the ordering of transactions in blocks that are
+        mined by miners in their pool. With the <a href="https://braiins.com/stratum-v2">release and adoption of stratum
+            v2</a> this will change and allow individual miners to express transaction ordering preferences to mining
+        pools. </p>
+    <p>Producers want to produce blockspace that is highly valuable or has some expectation to be in the future. Below
+        is a list of some companies that are large producers across a variety of blockchains </p>
+    <ul>
+        <li><a href="https://www.coinbase.com/cloud">Coinbase Cloud</a> (via Bison Trails <a
+                href="https://www.coinbase.com/blog/coinbase-to-acquire-leading-blockchain-infrastructure-platform-bison-trails">acquisition</a>)
+        </li>
+        <li><a href="https://chorus.one/">Chorus One</a></li>
+        <li><a href="https://jumpcrypto.com/">Jump Crypto</a> (via Certus One <a
+                href="https://www.coindesk.com/markets/2021/08/03/berlin-based-staking-startup-certus-one-acquired-by-jump-trading/">acquisition</a>)
+        </li>
+        <li><a href="https://figment.io/">Figment</a></li>
+        <li><a href="https://ir.mara.com/">Marathon</a></li>
+        <li><a href="https://www.galaxy.com/">Galaxy Digital</a></li>
+        <li><a href="https://www.riotplatforms.com/">Riot</a></li>
+        <li><a href="https://foundrydigital.com">Foundry</a></li>
+    </ul>
+    <h3 id="consumers">Consumers</h3>
+    <p>A consumer is any entity that uses blockspace that is being produced. The actual usage can be for a large variety
+        of things like transfers, swaps/trades, other financial transactions, etc. </p>
+    <p>However the largest consumers can <a href="https://dune.com/bitgetresearch/gas-overview">often be overlooked</a>.
+        Often asset issuers, exchanges, and protocols built on top of the blockchain are some of the largest consumers.
+        Below is a list of some protocols / companies that are large consumers </p>
+    <ul>
+        <li><a href="https://www.circle.com/en/">Circle</a>, <a href="https://tether.to/en/">Tether</a>, <a
+                href="https://paxos.com/">Paxos</a> other asset issuers</li>
+        <li><a href="https://coinbase.com/">Coinbase</a>, <a href="https://www.binance.com/en">Binance</a>, other
+            centralized exchanges</li>
+        <li><a href="https://arbitrum.io/">Arbitrum</a>, <a href="https://www.optimism.io/">Optimism</a>, other L2s
+            (increasingly in a environment in which many app teams are deploying their own rollup)</li>
+        <li>and of course power users / traders</li>
+    </ul>
+    <h1 id="valuing">Valuing</h1>
+    <p>Blockspace can vary extremely in terms of its demand. <a href="https://dataalways.substack.com/">Data Always</a>
+        had a really good overview of <a href="https://dataalways.substack.com/p/the-year-in-blockspace-demand">2022 in
+            blockspace demand</a>. Below is a chart of blockspace fees across leading protocols </p>
+    <p><img src="Ramblings%20on%20Blockspace%2074c75d883abf43ae885281108ea90b91/Untitled%204.png"
+            alt="[https://dataalways.substack.com/p/the-year-in-blockspace-demand](https://dataalways.substack.com/p/the-year-in-blockspace-demand)">
+    </p>
+    <p><a
+            href="https://dataalways.substack.com/p/the-year-in-blockspace-demand">https://dataalways.substack.com/p/the-year-in-blockspace-demand</a>
+    </p>
+    <p>It is worth noting that a large percentage of the fees paid at native protocol block subsidies. Something
+        valuable to watch in terms of real demand and growth is the percentage that user transactions fees make of the
+        total block reward. For example on Bitcoin this averages around <a
+            href="https://insights.braiins.com/en">2-4%</a> but over on Ethereum it is <a
+            href="https://bitinfocharts.com/comparison/ethereum-fee_to_reward.html#3y">similar in times</a> of low
+        activity but can spike to 60%+. When tracking a protocol with a developed MEV supply chain, tips should also be
+        included. </p>
+    <p>A few chains have spent time developing unique fee markets one being Ethereum with <a
+            href="https://eips.ethereum.org/EIPS/eip-1559">EIP1559</a>. This upgrade had a few goals such as lower fee
+        volatility but also had an important long term goal of preventing instability of a blockchain in a world were
+        there is no continued native issuance. 1559 lead to base fee burning and priority fees going to validators
+        working towards placing less emphasis/importance on the role of the block subsidy in the overall block reward.
+    </p>
+    <p>In order to keep up with its promise of cheap fees Solana created <a
+            href="https://fraxcesco.substack.com/p/in-depth-on-the-tech-solanas-local">localized fee markets</a> in
+        which the transaction fee is localized to each distinct contract interaction. If there is a high demand NFT mint
+        on Magic Eden transaction fees will not increase on Jupiter. This change is very consumer focused as it actually
+        reduces the fees that a validator could expect to earn. However given Solana has a built out MEV supply chain,
+        localized fees might bring in more users and thus more fees via MEV tips.</p>
+    <p>Valuing blockspace is still in it’s extremely early stages and with a majority of a block reward on a given chain
+        is via the predictable block subsidy there is not much variability in the rewards and corresponding valuation.
+        However as transaction fees/tips become a increasingly larger percentage of the overall block reward via
+        halvings, increased demand, creation of MEV supply chains, etc. valuations become more unpredictable and
+        introduce unique trading opportunities. </p>
+    <h1 id="trading">Trading</h1>
+    <p>Blockspace is notoriously mispriced. In many cases the blockchain misprices how it pays its producers, as they
+        continue to print more inflation for terrible quality blockspace. A majority of blockspace is cheap and abundant
+        with very few being valuable. </p>
+    <blockquote>
+        <p>This is were I look forward to newer implementations of block rewards and fee markets. Currently most
+            blockchains put out a whitepaper with static block subsidies that are maybe on some disinflationary
+            schedule. How can they be sure they are pricing their blockspace accurately before their blockchain is even
+            live? I am looking forward to new implementations in determining block subsidies.</p>
+    </blockquote>
+    <p>Given how new these markets are you likely have only ever been a producer or consumer and have not even
+        considered that you could trade blockspace. Right now these trades are usually expressed through swap, forwards,
+        and futures but there have also been more unique instruments like <a
+            href="https://www.block.green/">royalties</a>, block inclusion reservation, and <a
+            href="https://blog.1inch.io/everything-you-wanted-to-know-about-chi-gastoken/">gas tokens</a>. </p>
+    <p>Some of the primary places to trade blockspace currently are</p>
+    <ul>
+        <li><a href="https://luxor.tech/derivatives">Luxor</a> where you can trade non-deliverable forwards on Bitcoin
+            “Hashprice”</li>
+        <li><a href="https://alkimiya.io/">Alkimiya</a> a much more flexible swap marketplace where you are able to
+            trade swaps on Bitcoin and Ethereum blockspace along with potentially gas swaps</li>
+    </ul>
+    <p>A few projects with a lot of potential</p>
+    <ul>
+        <li><a href="https://docs.overlay.market/">Overlay</a> a perpetual future platform that allows you to trade
+            native data feeds and specifically mentions various blockspace components in their documentation</li>
+        <li><a href="https://www.oiler.network/">Oiler</a> which has a variety of products but one being <a
+                href="https://pitchlake.vercel.app/">Pitchlake</a> in which you can trade base fees on Ethereum</li>
+        <li><a href="https://volmex.finance/">Volmex</a> a volatility trading platform that I could see eventually
+            launching something like fee or validator reward volatility indexes</li>
+    </ul>
+    <blockquote>
+        <p>A product that is interesting to reason about is forming an index on blockspace quality based on the
+            characteristics above and forming a blockspace swap market across blockchains something like a swap between
+            Bitcoin and Ethereum’s blockspace demand</p>
+    </blockquote>
+    <p>Outside of speculation markets that <a href="https://luxor.tech/derivatives">Luxor</a>, <a
+            href="https://alkimiya.io/">Alkimiya</a>, and others are building are extremely important in creating
+        markets for risk transfer between blockspace producers and those that are willing to take on the exposure. As
+        public companies and energy companies enter the Bitcoin production space they will want to decrease volatility
+        in their cashflow. As L2s become more sophisticated they will want to hedge their transaction expense on L1s. As
+        exchanges and asset issuers look to operate more efficiently hedging their variable transaction cost becomes
+        important. </p>
+    <p>Overall the introduction of more robust capital markets around blockspace consumption and production is something
+        I am extremely excited for and interested to see how it develops.</p>
+</body>
+
+</html>
