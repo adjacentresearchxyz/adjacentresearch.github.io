@@ -1,42 +1,163 @@
-
 <!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Adjacent Research" />
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>longest levers</title>
+    <style>
+        body, .content-container, .header, .tree, .small, .sublink_small, .sublink_small:visited {
+            margin: 0;
+            padding: 0;
+        }
+        body, .header, .tree {
+            font-family: monospace;
+        }
+        .content-container {
+            max-width: 800px;
+            margin-left: 1%;
+            padding: 20px;
+            word-wrap: break-word;
+        }
+        .header, .tree {
+            white-space: pre;
+            margin-top: 10px;
+            margin-left: 1%;
+        }
+        .header {
+            font-size: 14px;
+        }
+        .tree {
+            line-height: 1;
+            font-size: 18px;
+        }
+        .small, .sublink_small {
+            font-size: 14px;
+        }
+        .sublink_small {
+            color: black;
+        }
+        .sublink_small:visited {
+            color: gray;
+        }
+        #adjacent-press {
+            margin-top: 20px;
+        }
+        #time-display {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: #f0f0f0;
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+        #rss-feed-press {
+            padding-left: 20px;
+            font-size: 14px;
+        }
 
-  <title>Adjacent Research</title>
+        #rss-feed-press a {
+            color: black;
+            text-decoration: underline dotted;
+        }
 
-  <link rel="icon" href="https://pbs.twimg.com/profile_images/1668357289747554304/7NSJ60Fd_400x400.jpg" type="image/x-icon">
-  <link rel="stylesheet" href="styles.css" />
- </head>
+        #rss-feed-press a:visited {
+            color: blue;
+        }
 
- <body>
-  <div id="preamble">
-  <h1 class="title">Adjacent</h1t>
+        #rss-feed-news {
+            padding-left: 20px;
+            font-size: 14px;
+        }
 
-   <h2 class="subtitle">
-    <a href="https://t.me/Oxperp">telegram</a>,
-    <a href="mailto:nate@adjacentresearch.xyz">email</a>,
-    <a href="https://github.com/adjacentresearchxyz">github</a>,
-    <a href="https://twitter.com/adjacent___">twitter</a>
-   </h2>
+        #rss-feed-news a {
+            color: black;
+            text-decoration: underline dotted;
+        }
 
-  </div>
+        #rss-feed-news a:visited {
+            color: blue;
+        }
 
-  <div>
-    <center><p>See everything we have worked on <a href="/list.html">here</a></p></center>
-    <div>
-    <center><code>ipfs pin add /ipns/adjacentresearch.xyz</code></center>
-   </div>
+        .rss-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.25em;
+        }
 
-  <br />
-  
-  <h2 class="subtitle">
-    <a href="https://press.adjacentresearch.xyz">Read Adjacent Press</a>, <a href="https://adj.news">Explore News</a>
-   </h2>
+        .rss-item::before {
+            content: "├──";
+            margin-right: 5px;
+        }
 
-  </div>
- </body>
+        .rss-item:last-child::before {
+            content: "└──";
+        }
+    </style>
+</head>
+<body>
+<div class="content-container">
+<div class="tree">
+<a class="small" style="font-style: italic;">adjacent research</a>
+<a class="small">building, writing, and investing in niche markets</a>
+<div id="adjacent-press">
+|—— <a href="https://press.adjacentresearch.xyz" class="small">press.adjacentresearch.xyz</a>
+    <div id="rss-feed-press"></div>
+</div>
+<div id="adjacent-news">
+|—— <a href="https://adj.news" class="small">adj.news</a>
+        <div id="rss-feed-news"></div>
+    </div>
+</div>
+</div>
+<div id="time-display" style="text-align: right;">
+<span id="nyc-time" style="text-align: left;"></span><br>
+<span id="sf-time"></span><br>
+<span id="london-time" style="display: flex; justify-content: space-between;"></span>
+</div>
+
+</div>
+
+<script>
+// Update time
+function updateTime() {
+    const now = new Date();
+    
+    const nycTime = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
+    document.getElementById('nyc-time').textContent = `NYC: ${nycTime}`;
+    
+    const sfTime = now.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit' });
+    document.getElementById('sf-time').textContent = `SF: ${sfTime}`;
+    
+    const londonTime = now.toLocaleTimeString('en-US', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit' });
+    document.getElementById('london-time').textContent = `London: ${londonTime}`;
+}
+
+setInterval(updateTime, 1000);
+updateTime(); // Initial call
+
+// Fetch RSS feed
+async function fetchRSS(feed, id) {
+    try {
+        const response = await fetch(feed);
+        const data = await response.json();
+        const feedList = document.getElementById(id);
+        
+        data.items.slice(0, 5).forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'rss-item';
+            const a = document.createElement('a');
+            a.href = item.link;
+            a.textContent = item.title;
+            div.appendChild(a);
+            feedList.appendChild(div);
+        });
+    } catch (error) {
+        console.error('Error fetching RSS feed:', error);
+    }
+}
+
+fetchRSS('https://api.rss2json.com/v1/api.json?rss_url=https://press.adjacentresearch.xyz/feed', 'rss-feed-press');
+fetchRSS('https://api.rss2json.com/v1/api.json?rss_url=https://adj.news/rss', 'rss-feed-news');
+
+</script>
+</body>
 </html>
