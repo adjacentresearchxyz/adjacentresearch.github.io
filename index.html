@@ -103,12 +103,10 @@
 <a class="small">building, writing, and investing in niche markets</a>
 <div id="adjacent-press">
 |—— <a href="https://press.adjacentresearch.xyz" class="small">selected from press.adjacentresearch.xyz</a>
-    <div id="rss-feed-press"></div>
 </div>
 <div id="adjacent-news">
 |—— <a href="https://adj.news" class="small">latest from adj.news</a>
-        <div id="rss-feed-news"></div>
-    </div>
+</div>
 </div>
 <div>
 |—— <a href="/list.html" class="small">all projects</a>
@@ -134,35 +132,11 @@ function updateTime() {
     document.getElementById('sf-time').textContent = `SF: ${sfTime}`;
     
     const londonTime = now.toLocaleTimeString('en-US', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit' });
-    document.getElementById('london-time').textContent = `London: ${londonTime}`;
+    document.getElementById('london-time').textContent = `Lisbon: ${londonTime}`;
 }
 
 setInterval(updateTime, 1000);
 updateTime(); // Initial call
-
-// Fetch RSS feed
-async function fetchRSS(feed, id) {
-    try {
-        const response = await fetch(feed);
-        const data = await response.json();
-        const feedList = document.getElementById(id);
-        
-        data.items.slice(0, 5).forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'rss-item';
-            const a = document.createElement('a');
-            a.href = item.link;
-            a.textContent = item.title;
-            div.appendChild(a);
-            feedList.appendChild(div);
-        });
-    } catch (error) {
-        console.error('Error fetching RSS feed:', error);
-    }
-}
-
-fetchRSS('https://api.rss2json.com/v1/api.json?rss_url=https://press.adjacentresearch.xyz/feed', 'rss-feed-press');
-fetchRSS('https://api.rss2json.com/v1/api.json?rss_url=https://adj.news/rss', 'rss-feed-news');
 
 </script>
 </body>
